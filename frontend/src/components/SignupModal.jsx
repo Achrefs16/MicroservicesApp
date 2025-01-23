@@ -1,8 +1,10 @@
 "use client"
 import React, { useState, useEffect, useRef } from "react";
-
-const SignUpModal = ({ onClose, onSignUp }) => {
+import { toast } from "react-hot-toast";
+const SignUpModal = ({ onClose, onSignUp,onLoginClick }) => {
   const [email, setEmail] = useState("");
+  const [firstName, setfirstName] = useState("");
+    const [lastName, setlastName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const modalRef = useRef(null);
@@ -23,7 +25,9 @@ const SignUpModal = ({ onClose, onSignUp }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === "email") setEmail(value);
+    if (name === "firstName") setfirstName(value);
+    else if (name === "lastName") setlastName(value);
+    else if (name === "email") setEmail(value);
     else if (name === "password") setPassword(value);
     else if (name === "confirmPassword") setConfirmPassword(value);
   };
@@ -31,14 +35,16 @@ const SignUpModal = ({ onClose, onSignUp }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (email && password && confirmPassword) {
+    if (firstName&&lastName&&email && password && confirmPassword) {
       if (password !== confirmPassword) {
-        alert("Passwords do not match.");
+        toast.error("Les mots de passe ne correspondent pas.");
         return;
       }
 
       // Simulate an API call for sign-up (You should replace this with actual sign-up logic)
       const userCredentials = {
+        firstName,
+        lastName,
         email,
         password,
       };
@@ -46,7 +52,7 @@ const SignUpModal = ({ onClose, onSignUp }) => {
       // On successful sign-up, call onSignUp
       onSignUp(userCredentials); // Pass the credentials back to the parent component for handling
     } else {
-      alert("Please fill out all fields.");
+      toast.error("Veuillez remplir tous les champs.");
     }
   };
 
@@ -54,6 +60,40 @@ const SignUpModal = ({ onClose, onSignUp }) => {
     <div className="flex flex-col justify-center bg-white rounded-lg shadow-md border-2 pb-4" ref={modalRef}>
       <div className="mt-4 w-96 sm:mx-auto" >
         <form onSubmit={handleSubmit} className="space-y-6 p-10" method="POST">
+            <div className="flex gap-4">
+             <div>
+            <label htmlFor="firstName" className="block text-sm font-medium text-gray-500">
+Prénom
+            </label>
+            <div className="mt-2">
+              <input
+                value={firstName}
+                onChange={handleInputChange}
+                id="firstName"
+                name="firstName"
+                type="text"
+                required
+                className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6"
+              />
+            </div>
+          </div>
+           <div>
+            <label htmlFor="lastName" className="block text-sm font-medium text-gray-500">
+Nom
+            </label>
+            <div className="mt-2">
+              <input
+                value={lastName}
+                onChange={handleInputChange}
+                id="lastName"
+                name="lastName"
+                type="text"
+                
+                className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6"
+              />
+            </div>
+          </div>
+          </div>
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-500">
               Adresse e-mail
@@ -66,7 +106,7 @@ const SignUpModal = ({ onClose, onSignUp }) => {
                 name="email"
                 type="email"
                 autoComplete="email"
-                required
+                
                 className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6"
               />
             </div>
@@ -86,7 +126,7 @@ const SignUpModal = ({ onClose, onSignUp }) => {
                 name="password"
                 type="password"
                 autoComplete="new-password"
-                required
+                
                 className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6"
               />
             </div>
@@ -112,11 +152,7 @@ const SignUpModal = ({ onClose, onSignUp }) => {
             </div>
           </div>
 
-          <div className="text-sm flex items-center justify-between">
-            <a href="#" className="font-semibold text-brand hover:text-indigo-500">
-              Mot de passe oublié ?
-            </a>
-          </div>
+       
 
           <div>
             <button
@@ -131,7 +167,11 @@ const SignUpModal = ({ onClose, onSignUp }) => {
 
       <p className="text-center text-base text-gray-500">
         Vous avez déjà un compte ?
-        <a href="#" className="font-semibold leading-6 text-brand text-gray-800 hover:text-gray-600">
+        <a href="#" className="font-semibold leading-6 text-brand text-gray-800 hover:text-gray-600" 
+         onClick={(e) => {
+              e.preventDefault();
+              onLoginClick(); // Switch to Sign Up modal
+            }}>
           {" "}
           Se connecter
         </a>
