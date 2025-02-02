@@ -18,7 +18,7 @@ console.log(firstName);
     // Check if email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'Email already in use' });
+      return res.json({ message: 'Adresse e-mail déjà utilisée' });
     }
 
     // Hash password before storing
@@ -52,13 +52,13 @@ const signIn = async (req, res) => {
     
     
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return res.json({ success: false, message: 'Adresse e-mail non enregistrée' });
     }
 
     // Verify password
     const isPasswordValid = await comparePassword(password, user.password);
     if (!isPasswordValid) {
-      return res.status(400).json({ success: false, message: 'Motdepass incorrect ' });
+      return res.json({ success: false, message: 'Mot de passe incorrect'});
     }
 
     // Generate JWT token

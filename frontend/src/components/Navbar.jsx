@@ -2,68 +2,59 @@
 import { toast } from "react-hot-toast";
 import React, { useState } from "react";
 import Link from "next/link";
-import { FiSearch, FiShoppingCart } from "react-icons/fi";
+import { FiShoppingCart } from "react-icons/fi";
 import { FaUser } from "react-icons/fa";
 import LoginModal from "./LoginModal";
 import SignUpModal from "./SignUpModal";
-import Cart from "./Cart"; // Import the Cart component
+import Cart from "./Cart";
 import axios from "axios";
+import { useCart } from "../app/context/CartContext"; // Import useCart
 
-const API_URL = "http://localhost:5000/api/auth"; // Replace with your actual backend URL
+const API_URL = "http://localhost:5000/api/auth";
 
 const Navbar = () => {
+  const { clientTotalItems } = useCart(); // Get total items from cart
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  // Toggle profile modal
   const toggleProfile = () => {
     if (isSignedIn) {
-      window.location.href = "/profile"; // Redirect to profile page if signed in
+      window.location.href = "/profile";
     } else {
-      setIsProfileOpen(true); // Show login modal
+      setIsProfileOpen(true);
     }
   };
 
-  // Toggle sign-up modal
   const toggleSignup = () => {
     setIsProfileOpen(false);
     setIsSignUpOpen(!isSignUpOpen);
   };
 
-  // Toggle login modal
   const toggleLogin = () => {
     setIsSignUpOpen(false);
     setIsProfileOpen(!isProfileOpen);
   };
 
-  // Handle sign-in process and make API call
   const handleSignIn = async (userCredentials) => {
-  try {
-    const response = await axios.post(`${API_URL}/signin`, userCredentials);
-    if (response.data.success) {
-       
-        
-      // Store the JWT token in localStorage or cookies
-      localStorage.setItem('token', response.data.token);
-
-      // Update the state to indicate the user is signed in
-      setIsSignedIn(true);
-      setIsProfileOpen(false);
-
-      // Show success message
-      toast.success("Connexion réussie !");
-    } else {
-      toast.error("Identifiants invalides.");
+    try {
+      const response = await axios.post(`${API_URL}/signin`, userCredentials);
+      if (response.data.success) {
+        localStorage.setItem("token", response.data.token);
+        setIsSignedIn(true);
+        setIsProfileOpen(false);
+        toast.success("Connexion réussie !");
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Échec de la connexion. Veuillez réessayer.");
     }
-  } catch (error) {
-    console.error(error);  // Log error for debugging
-    toast.error("Échec de la connexion. Veuillez réessayer.");
-  }
-};
-  // Handle sign-up process and make API call
+  };
+
   const handleSignUp = async (userCredentials) => {
     try {
       const response = await axios.post(`${API_URL}/signup`, userCredentials);
@@ -78,25 +69,24 @@ const Navbar = () => {
     }
   };
 
-  // Toggle cart modal visibility
   const handleCartToggle = () => {
     setIsCartOpen(!isCartOpen);
   };
 
   return (
-    <nav>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="text-lg font-bold">
-              All Products
-            </Link>
-            <Link href="/" className="text-lg font-bold">
-              Contact
-            </Link>
-            <Link href="/" className="text-lg font-bold">
-              About
-            </Link>
+    <nav className="bg-white shadow-lg">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex justify-between items-center h-16">
+       
+             <div className="flex items-center">
+              <span className="text-2xl font-bold text-blue-600">TechHub</span>
+            </div>
+            <div className="hidden md:flex items-center space-x-8">
+             <Link href="/" className="text-gray-700 hover:text-blue-600">Home</Link>
+             <Link href="/categories" className="text-gray-700 hover:text-blue-600">Categories</Link>
+             <Link href="/NewArrivals" className="text-gray-700 hover:text-blue-600">New Arrivals</Link>
+             <Link href="/contact" className="text-gray-700 hover:text-blue-600">Contact</Link>
+            
           </div>
           <div className="hidden md:flex items-center space-x-4">
             <div className="relative">
@@ -106,9 +96,18 @@ const Navbar = () => {
                 className="px-3 py-2 rounded-md text-sm bg-gray-300 focus:outline-none focus:ring focus:ring-gray-600"
               />
             </div>
-            <button className="focus:outline-none" onClick={handleCartToggle}>
+
+            {/* Cart Button with Badge */}
+            <button className="relative focus:outline-none" onClick={handleCartToggle}>
               <FiShoppingCart size={24} />
+              {clientTotalItems > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  {clientTotalItems}
+                </span>
+              )}
             </button>
+
+            {/* Profile Button */}
             <button
               onClick={toggleProfile}
               className="bg-gray-300 rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
@@ -117,54 +116,13 @@ const Navbar = () => {
               <FaUser />
             </button>
           </div>
-          <div className="-mr-2 flex md:hidden">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-            >
-              <span className="sr-only">Open main menu</span>
-              {!isOpen ? (
-                <svg
-                  className="block h-6 w-6"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 6h16M4 12h16m-7 6h7"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  className="block h-6 w-6"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              )}
-            </button>
-          </div>
         </div>
       </div>
 
       {/* Cart Modal */}
       {isCartOpen && <Cart closeCart={() => setIsCartOpen(false)} />}
 
-      {/* Display the login modal */}
+      {/* Login Modal */}
       {isProfileOpen && !isSignedIn && (
         <>
           <div className="fixed inset-0 bg-black opacity-50 z-10" />
@@ -178,7 +136,7 @@ const Navbar = () => {
         </>
       )}
 
-      {/* Display the sign-up modal */}
+      {/* Sign-Up Modal */}
       {isSignUpOpen && (
         <>
           <div className="fixed inset-0 bg-black opacity-50 z-10" />
