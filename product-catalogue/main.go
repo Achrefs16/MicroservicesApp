@@ -9,6 +9,7 @@ import (
 	"product-catalogue/routes"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func main() {
@@ -25,6 +26,13 @@ func main() {
 
 	// Initialize Fiber app
 	app := fiber.New()
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:  "*", // Your Angular app's origin
+		AllowMethods:  "GET,POST,PUT,DELETE",
+		AllowHeaders:  "Origin, Content-Type, Accept, Authorization",
+		ExposeHeaders: "Authorization",
+	}))
 
 	// Serve static files from the "uploads" directory
 	app.Static("/uploads", "./uploads")

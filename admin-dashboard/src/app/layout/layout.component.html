@@ -1,0 +1,89 @@
+<div class="h-screen flex flex-col bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white shadow-sm fixed w-full z-50">
+    <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+      <div class="flex items-center">
+        <h1 class="text-xl font-bold text-gray-800 flex items-center">
+          <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+          Admin Dashboard
+        </h1>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <div class="relative">
+          <button class="p-2 hover:bg-gray-100 rounded-full">
+            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+            <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+          </button>
+        </div>
+        
+        <div class="relative group">
+          <button class="flex items-center space-x-2 hover:bg-gray-100 px-3 py-1.5 rounded-lg">
+            <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white">AD</div>
+            <span class="text-gray-700">Admin</span>
+            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          
+          <!-- Dropdown Menu -->
+          <div class="absolute right-0  w-48 bg-white rounded-lg shadow-lg py-2 hidden group-hover:block">
+          
+            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Settings</a>
+            <button (click)="onLogout()" class="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100">
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="flex flex-1 pt-16">
+    <!-- Sidebar -->
+    <nav class="w-64 bg-gray-800 text-white fixed h-full pt-4 pb-6 px-4 flex flex-col">
+      <div class="flex-1">
+        <ul class="space-y-1 mt-4">
+          <li>
+            <a routerLink="/products" routerLinkActive="bg-gray-900 text-white" 
+               class="flex items-center space-x-3 px-4 py-2.5 rounded-lg hover:bg-gray-700 transition-all">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+              </svg>
+              <span>Products</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/orders" routerLinkActive="bg-gray-900 text-white" 
+               class="flex items-center space-x-3 px-4 py-2.5 rounded-lg hover:bg-gray-700 transition-all">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+              </svg>
+              <span>Orders</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 ml-64 bg-gray-50 overflow-y-auto">
+      <div class="max-w-7xl mx-auto px-6 py-8">
+        <!-- Dynamic Content -->
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+          <router-outlet></router-outlet>
+        </div>
+        
+        <!-- Optional Footer -->
+        <footer class="mt-8 text-center text-sm text-gray-500">
+          <p>© 2025 Achref Saidi. All rights reserved.</p>
+        </footer>
+      </div>
+    </main>
+  </div>
+</div>

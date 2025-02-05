@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -10,42 +11,64 @@ import (
 
 // JWTAuthentication middleware to verify the JWT token and protect routes
 func JWTAuthentication(c *fiber.Ctx) error {
-	tokenString := c.Get("Authorization") // Get token from Authorization header
+	// Retrieve the token from the "Authorization" header.
+	authHeader := c.Get("Authorization")
+	if authHeader == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Missing or malformed JWT",
+		})
+	}
 
-	// Remove "Bearer " prefix
-	tokenString = strings.TrimPrefix(tokenString, "Bearer ")
+	// Remove the "Bearer " prefix, if present.
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	if tokenString == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Missing token",
+		})
+	}
 
-	// Parse the token
+	// Parse and verify the token.
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		// Ensure token is signed with the correct algorithm
+		// Validate the signing method.
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fiber.NewError(fiber.StatusUnauthorized, "Invalid token")
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(os.Getenv("JWT_SECRET")), nil
+
+		// Return the secret key.
+		secret := os.Getenv("JWT_SECRET")
+		fmt.Println("Error parsing token:", secret)
+		if secret == "" {
+			return nil, fmt.Errorf("JWT secret not set in environment")
+		}
+		return []byte(secret), nil
 	})
 
+	// If there's an error during parsing, the token is invalid.
 	if err != nil {
+		fmt.Println("Error parsing token:", err)
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"error": "Invalid token",
 		})
 	}
 
-	// Extract the claims
+	// Extract claims and check token validity.
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		// Attach user details to the context
+		// Attach user details to the context for downstream handlers.
 		c.Locals("userId", claims["userId"])
 		c.Locals("role", claims["role"])
-		return c.Next() // Proceed to the next handler
-	} else {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "Unauthorized",
-		})
+		return c.Next()
 	}
+
+	// If token is not valid, return an unauthorized error.
+	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+		"error": "Unauthorized",
+	})
 }
 
 // AdminRoleMiddleware ensures only users with an 'admin' role can access the route
 func AdminRoleMiddleware(c *fiber.Ctx) error {
 	role := c.Locals("role").(string)
+	fmt.Println("role")
 	if role != "admin" {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": "Forbidden: Admin access required",

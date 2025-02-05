@@ -76,4 +76,36 @@ const signIn = async (req, res) => {
   }
 };
 
-module.exports = { signUp, signIn };
+const adminSignIn = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    // Find the admin by email
+    const admin = await User.findOne({ email, role: 'admin' });
+
+    if (!admin) {
+      return res.json({ success: false, message: 'Admin not found' });
+    }
+
+    // Verify password
+    const isPasswordValid = await comparePassword(password, admin.password);
+    if (!isPasswordValid) {
+      return res.json({ success: false, message: 'Incorrect password' });
+    }
+
+    // Generate JWT token for admin
+    const token = jwt.sign(
+      { userId: admin._id, role: admin.role },
+      jwtSecret,
+      { expiresIn: '1h' }
+    );
+
+    return res.status(200).json({ success: true, token });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Error logging in' });
+  }
+};
+
+
+module.exports = { signUp, signIn , adminSignIn};

@@ -55,7 +55,7 @@ func CreateProduct(c *fiber.Ctx) error {
 			})
 		}
 
-		product.ImageURL = "/uploads/" + filename
+		product.ImageURL = "http://localhost:4000/uploads/" + filename
 	}
 
 	// Save product to database
@@ -132,7 +132,7 @@ func UpdateProduct(c *fiber.Ctx) error {
 		}
 
 		// Update the product image URL
-		product.ImageURL = "/uploads/" + filename
+		product.ImageURL = "http://localhost:4000/uploads/" + filename
 	}
 
 	// Save changes

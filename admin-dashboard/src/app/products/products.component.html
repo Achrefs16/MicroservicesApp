@@ -1,1 +1,267 @@
-<p>products works!</p>
+<div class="p-8 max-w-7xl mx-auto">
+  <!-- Header Section -->
+  <div class="mb-8 border-b pb-4">
+    <h1 class="text-3xl font-bold text-gray-800">Product Management</h1>
+    <p class="text-gray-600 mt-2">Manage your inventory and product listings</p>
+  </div>
+
+<!-- Forms Section -->
+<div class="mb-8 bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+  <h3 class="text-xl font-semibold mb-4 flex items-center">
+    <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+    </svg>
+    Add New Product
+  </h3>
+  
+  <form (ngSubmit)="createProduct()" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- Form Fields -->
+    <div class="space-y-2">
+      <label class="text-sm font-medium text-gray-700">Product Name *</label>
+      <input type="text" [(ngModel)]="newProduct.name" name="name" required
+            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+    </div>
+
+    <div class="space-y-2">
+      <label class="text-sm font-medium text-gray-700">Category *</label>
+      <input type="text" [(ngModel)]="newProduct.category" name="category" required
+            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+    </div>
+
+    <div class="space-y-2 md:col-span-2">
+      <label class="text-sm font-medium text-gray-700">Description *</label>
+      <textarea [(ngModel)]="newProduct.description" name="description" required rows="3"
+                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+    </div>
+
+    <div class="space-y-2">
+      <label class="text-sm font-medium text-gray-700">Price *</label>
+      <input type="number" step="0.01" [(ngModel)]="newProduct.price" name="price" required
+            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+    </div>
+
+    <div class="space-y-2">
+      <label class="text-sm font-medium text-gray-700">Stock *</label>
+      <input type="number" [(ngModel)]="newProduct.stock" name="stock" required
+            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+    </div>
+
+    <div class="space-y-2 md:col-span-2">
+      <label class="text-sm font-medium text-gray-700">Product Image</label>
+      <input type="file" (change)="onFileSelected($event)" #fileInput id="fileInput"
+            class="w-full px-3 py-2 border rounded-lg file:mr-4 file:py-2 file:px-4
+                   file:rounded-lg file:border-0 file:text-sm file:font-medium
+                   file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+    </div>
+
+    <!-- Error/Success Messages -->
+    <div *ngIf="errorMessage" class="md:col-span-2 p-4 bg-red-50 text-red-700 rounded-lg">
+      {{ errorMessage }}
+    </div>
+    <div *ngIf="successMessage" class="md:col-span-2 p-4 bg-green-50 text-green-700 rounded-lg">
+      {{ successMessage }}
+    </div>
+
+    <div class="md:col-span-2">
+      <button type="submit" [disabled]="isSubmitting" 
+              class="bg-green-500  hover:bg-green-600 text-white px-6 py-2.5 rounded-lg
+                     flex items-center justify-center disabled:bg-gray-400">
+        <span *ngIf="!isSubmitting">Create Product</span>
+        <span *ngIf="isSubmitting">Creating...</span>
+      </button>
+    </div>
+  </form>
+</div>
+
+  <!-- Products Grid -->
+    <div class="mt-12">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+      <h3 class="text-xl font-semibold text-gray-800">Product Inventory</h3>
+      <div class="w-full sm:w-64 relative">
+        <input type="text" 
+               [(ngModel)]="searchTerm"
+               placeholder="Search products..."
+               class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-white focus:border-blue-500 text-sm text-gray-700">
+        <svg class="w-4 h-4 absolute left-3 top-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div *ngFor="let product of filteredProducts" 
+           class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-100">
+       <div class="p-4">
+          <div class="aspect-video rounded-lg bg-gray-100 overflow-hidden mb-4">
+            <img [src]="product.imageURL" alt="{{ product.name }}" 
+                 class="w-full h-full object-cover hover:scale-105 transition-transform duration-200">
+          </div>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="font-semibold text-gray-800">{{ product.name }}</h3>
+              <span class="  text-sm px-2 py-1 bg-blue-100 text-blue-800 rounded-full  overflow-hidden text-ellipsis whitespace-nowrap">{{ product.category }}</span>
+            </div>
+            <p class=" text-gray-600 text-sm line-clamp-2 overflow-hidden text-ellipsis whitespace-nowrap">{{ product.description }}</p>
+            <div class="flex items-center justify-between">
+              <span class="text-lg font-bold text-blue-600">${{ product.price }}</span>
+              <span class="text-sm text-gray-500">Stock: {{ product.stock }}</span>
+            </div>
+          </div>
+          <div class="mt-4 flex space-x-2">
+            <button (click)="selectProduct(product)" 
+                    class="flex-1 bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-2 rounded-lg flex items-center justify-center">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+              </svg>
+              Edit
+            </button>
+          <button (click)="deleteProduct(product)" 
+        class="bg-red-100 hover:bg-red-200 text-red-800 px-3 py-2 rounded-lg flex items-center justify-center">
+  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+  </svg>
+</button>
+
+          </div>
+      </div>
+    </div>
+
+    <!-- No results message -->
+    <div *ngIf="filteredProducts.length === 0" class="text-center py-12 text-gray-500">
+      <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      No products found matching your search.
+    </div>
+  </div>
+  </div>
+
+
+  <!-- Edit Product Modal -->
+<div
+  *ngIf="selectedProduct"
+class="fixed inset-0 my-auto flex items-center justify-center h-[100vh]  bg-[rgba(75,85,99,0.5)] z-50">
+  <div class="bg-white p-6 rounded-xl shadow-lg max-w-lg w-full relative">
+    <h3 class="text-xl font-semibold mb-4">Edit Product</h3>
+    <form (ngSubmit)="updateProduct()" class="grid grid-cols-1 gap-4">
+      <!-- Product Name -->
+       <div class="flex justify-between items-center ">
+      <div class="space-y-1.5">
+        <label class="text-sm font-medium text-gray-700 ">Product Name *</label>
+        <input
+          type="text"
+          [(ngModel)]="selectedProduct.name"
+          name="editName"
+          required
+          class="w-52 px-3 py-1 border rounded-lg focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <!-- Category -->
+      <div class="space-y-2">
+        <label class="text-sm font-medium text-gray-700">Category *</label>
+        <input
+          type="text"
+          [(ngModel)]="selectedProduct.category"
+          name="editCategory"
+          required
+          class="w-52 px-3 py-1 border rounded-lg focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+      </div>
+
+      <!-- Description -->
+      <div class="space-y-2">
+        <label class="text-sm font-medium text-gray-700">Description *</label>
+        <textarea
+          [(ngModel)]="selectedProduct.description"
+          name="editDescription"
+          required
+          rows="3"
+          class="w-full px-3 py-1 border rounded-lg focus:ring-2 focus:ring-blue-500"
+        ></textarea>
+      </div>
+
+      <!-- Price -->
+      <div class="space-y-2">
+        <label class="text-sm font-medium text-gray-700">Price *</label>
+        <input
+          type="number"
+          step="0.01"
+          [(ngModel)]="selectedProduct.price"
+          name="editPrice"
+          required
+          class="w-full px-3 py-1 border rounded-lg focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <!-- Stock -->
+      <div class="space-y-2">
+        <label class="text-sm font-medium text-gray-700">Stock *</label>
+        <input
+          type="number"
+          [(ngModel)]="selectedProduct.stock"
+          name="editStock"
+          required
+          class="w-full px-3 py-1 border rounded-lg focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <!-- Image Upload -->
+      <div class="space-y-2">
+        <label class="text-sm font-medium text-gray-700">Product Image</label>
+        <input
+          type="file"
+          (change)="onFileSelectedUpdate($event)"
+          #fileInputUpdate
+          id="fileInputUpdate"
+          class="w-full px-3 py-1 border rounded-lg file:mr-4 file:py-1 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+        />
+      </div>
+
+
+      <!-- Modal Actions -->
+      <div class="flex justify-end space-x-4 mt-2">
+        <button
+          type="button"
+          (click)="cancelEdit()"
+          class="px-4 py-1 bg-gray-200 rounded-lg"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="px-4 py-1 bg-blue-500 text-white rounded-lg"
+        >
+          Update Product
+        </button>
+      </div>
+      
+
+    
+    </form>
+
+    <!-- Optional: Close button (if you want a clickable "X" in the corner) -->
+    <button
+      type="button"
+      (click)="cancelEdit()"
+      class="absolute top-2 right-2 text-gray-600 text-4xl cursor-pointer hover:text-gray-800"
+    >
+      &times;
+    </button>
+  </div>
+</div>
+<!-- Modal for confirmation -->
+<div *ngIf="isModalOpen" class="fixed inset-0 flex items-center justify-center bg-[rgba(75,85,99,0.5)] z-50">
+  <div class="bg-white p-6 rounded-lg shadow-lg w-80">
+    <h3 class="text-xl font-semibold text-center">Are you sure you want to delete this product?</h3>
+    <div class="mt-4 flex justify-around">
+      <button (click)="confirmDelete()" class="bg-red-500 text-white px-4 py-2 rounded-lg">
+        Yes, Delete
+      </button>
+      <button (click)="cancelDelete()" class="bg-gray-500 text-white px-4 py-2 rounded-lg">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>

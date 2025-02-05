@@ -1,25 +1,34 @@
 import { NgModule } from '@angular/core';
-import { BrowserModule, provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations'; // Required for Toastr
+import { ToastrModule } from 'ngx-toastr';
 
 import { AppRoutingModule } from './app-routing.module';
+import { provideHttpClient, withFetch } from '@angular/common/http'; // Updated import
 import { AppComponent } from './app.component';
+import { LayoutComponent } from './layout/layout.component';
 import { ProductsComponent } from './products/products.component';
 import { OrdersComponent } from './orders/orders.component';
 import { LoginComponent } from './login/login.component';
-
+import { FormsModule } from '@angular/forms';
 @NgModule({
   declarations: [
     AppComponent,
+    LayoutComponent,
     ProductsComponent,
     OrdersComponent,
     LoginComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+      FormsModule,
+    BrowserAnimationsModule, // Required for Toastr
+    ToastrModule.forRoot() 
   ],
   providers: [
-    provideClientHydration(withEventReplay())
+    provideHttpClient(withFetch()) // Add this line
+    
   ],
   bootstrap: [AppComponent]
 })

@@ -7,6 +7,7 @@ const authenticate = require('../middleware/authMiddleware');
 // Public routes
 router.post('/signup', authController.signUp);
 router.post('/signin', authController.signIn);
+router.post('/adminsignin', authController.adminSignIn);
 
 // Protected route example (requires authentication)
 router.get('/protected', authenticate, (req, res) => {
