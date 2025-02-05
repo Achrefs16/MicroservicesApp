@@ -8,7 +8,7 @@ go.work.sum
 
 # Dependency directories (note: Go Modules)
 vendor/
-
+uploads/
 # .env file for environment variables
 .env
 
