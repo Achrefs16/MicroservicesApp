@@ -1,18 +1,39 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import ProductCard from "@/components/products/ProductCard";
-
+import axios from "axios";
 const Main = () => {
-  const products = [
-    { id: 1, name: "Wireless Headphones", price: 199, image: "/images/headphones.jpg", sale: true, rating: 4.8 },
-    { id: 2, name: "4K Smart TV", price: 899, image: "/images/smart-tv.jpg", rating: 4.6 },
-    { id: 3, name: "Gaming Laptop", price: 1599, image: "/images/laptop.jpg", sale: true, rating: 4.7 },
-    { id: 4, name: "Smartwatch Pro", price: 299, image: "/images/smartwatch.jpg", rating: 4.5 },
-    { id: 5, name: "DSLR Camera", price: 1299, image: "/images/camera.jpg", sale: true, rating: 4.9 },
-    { id: 6, name: "Wireless Speaker", price: 249, image: "/images/speaker.jpg", rating: 4.4 },
-    { id: 7, name: "VR Headset", price: 399, image: "/images/vr-headset.jpg", sale: true, rating: 4.3 },
-    { id: 8, name: "Tablet Pro", price: 599, image: "/images/tablet.jpg", rating: 4.6 },
-  ];
 
+  // State to hold the products data, loading status, and potential errors
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // useEffect to fetch products when the component mounts
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        // Adjust the URL to match your backend endpoint
+        const response = await axios.get("http://localhost:4000/products");
+        setProducts(response.data);
+        console.log(response.data);
+        
+      } catch (err) {
+        console.error("Error fetching products:", err);
+        setError("Failed to load products.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []); 
+
+const categories = [
+  { category: 'Smartphones & Accessories', image: '/images/smartphones.webp' },
+  { category: 'Laptops & Computers', image: '/images/laptops.jpg' },
+  { category: 'Gaming Electronics', image: '/images/gaming.jpg' },
+  { category: 'Audio Devices', image: '/images/audio.jpg' }
+];
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navigation Bar */}
@@ -35,20 +56,20 @@ const Main = () => {
       {/* Categories Section */}
       <section className="max-w-7xl mx-auto py-16 px-4">
         <h2 className="text-3xl font-bold text-gray-800 mb-12 text-center">Popular Categories</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {['Smartphones', 'Laptops', 'Cameras', 'Accessories'].map((category, index) => (
-            <div key={index} className="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-              <img 
-                src={`https://via.placeholder.com/400x300?text=${category}`} 
-                alt={category}
-                className="w-full h-48 object-cover transform group-hover:scale-105 transition-transform"
-              />
-              <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                <h3 className="text-white text-2xl font-bold">{category}</h3>
-              </div>
-            </div>
-          ))}
+     <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      {categories.map((cat, index) => (
+        <div key={index} className="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+          <img 
+            src={cat.image}
+            alt={cat.category}
+            className="w-full h-48 object-cover transform group-hover:scale-105 transition-transform"
+          />
+          <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+            <h3 className="text-white text-2xl font-bold">{cat.category}</h3>
+          </div>
         </div>
+      ))}
+    </div>
       </section>
 
       {/* Featured Products Section */}
@@ -57,7 +78,7 @@ const Main = () => {
           <h2 className="text-3xl font-bold text-gray-800 mb-12 text-center">Featured Products</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard key={product.ID} product={product} />
             ))}
           </div>
         </div>

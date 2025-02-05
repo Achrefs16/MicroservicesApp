@@ -65,7 +65,7 @@ const signIn = async (req, res) => {
     const token = jwt.sign(
       { userId: user._id, role: user.role },
       jwtSecret,
-      { expiresIn: '1h' }
+      { expiresIn: '24h' }
     );
 
     // Return success response with token
@@ -97,7 +97,7 @@ const adminSignIn = async (req, res) => {
     const token = jwt.sign(
       { userId: admin._id, role: admin.role },
       jwtSecret,
-      { expiresIn: '1h' }
+      { expiresIn: '24h' }
     );
 
     return res.status(200).json({ success: true, token });

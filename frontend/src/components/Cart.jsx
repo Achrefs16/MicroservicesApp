@@ -5,7 +5,17 @@ import { FiX } from "react-icons/fi";
 const Cart = ({ closeCart }) => {
 const { cart, removeItem, clearCart, incrementItem, decrementItem, totalPrice } = useCart();
 
+const increment = (quantity,id,Stock) => {
+    
+      if ( quantity < Stock) return incrementItem(id);
 
+  };
+
+  const decrement = (quantity,id) => {
+    
+           if (quantity >=1) return decrementItem(id);
+
+  };
   return (
 
 <div className="absolute inset-0 bg-black bg-opacity-50 z-40">
@@ -17,28 +27,28 @@ const { cart, removeItem, clearCart, incrementItem, decrementItem, totalPrice } 
         {cart.length > 0 ? (
           <ul className="-my-8">
             {cart.map((item) => (
-              <li key={item.id} className="flex flex-col items-center space-y-3 py-4 text-left sm:flex-row sm:space-x-5 sm:space-y-0">
+              <li key={item.ID} className="flex flex-col items-center space-y-3 py-4 text-left sm:flex-row sm:space-x-5 sm:space-y-0">
                 <div className="shrink-0">
-                  <img className="h-20  w-20 max-w-full rounded-lg object-cover" src={item.image} alt={item.name} />
+                  <img className="h-20  w-20 max-w-full rounded-lg object-cover" src={item.ImageURL} alt={item.Name} />
                 </div>
 
                 <div className="relative flex flex-1 flex-col justify-between">
                   <div className="sm:col-gap-5 sm:grid sm:grid-cols-2">
                     <div className="pr-8 sm:pr-5">
-                      <p className="text-base font-semibold text-gray-900">{item.name}</p>
+                      <p className="text-base font-semibold text-gray-900">{item.Name}</p>
                       <p className="mx-0 mt-1 mb-0 text-sm text-gray-400">{item.size}</p>
                     </div>
 
                     <div className="mt-4 flex items-end justify-between sm:mt-0 sm:items-start sm:justify-end">
                       <p className="shrink-0 w-20 text-base font-semibold text-gray-900 sm:order-2 sm:ml-8 sm:text-right">
-                        ${item.price}
+                        ${item.Price}
                       </p>
 
                       <div className="sm:order-1">
                         <div className="mx-auto flex h-8 items-stretch text-gray-600">
                           <button
                             className="flex items-center justify-center rounded-l-md bg-gray-200 px-4 transition hover:bg-black hover:text-white"
-                            onClick={() => decrementItem(item.id)}
+                            onClick={() => decrement(item.quantity,item.ID)}  
                           >
                             -
                           </button>
@@ -47,7 +57,7 @@ const { cart, removeItem, clearCart, incrementItem, decrementItem, totalPrice } 
                           </div>
                           <button
                             className="flex items-center justify-center rounded-r-md  bg-gray-200 px-4 transition hover:bg-black hover:text-white"
-                            onClick={() => incrementItem(item.id)}
+                            onClick={() => increment(item.quantity,item.ID,item.Stock)}
                           >
                             +
                           </button>

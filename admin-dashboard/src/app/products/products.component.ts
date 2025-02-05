@@ -39,7 +39,10 @@ export class ProductsComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
 
-  
+    showForm: boolean = false;
+    toggleForm() {
+    this.showForm = !this.showForm;
+  }
   constructor(private http: HttpClient, private toastr: ToastrService ) {}
 
   ngOnInit(): void {

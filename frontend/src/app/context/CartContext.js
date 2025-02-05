@@ -30,66 +30,83 @@ useEffect(() => {
   setClientTotalItems(totalItems);
 }, [totalItems]);
   const totalPrice = useMemo(
-    () => cart.reduce((total, item) => total + item.price * item.quantity, 0),
+    () => cart.reduce((total, item) => total + item.Price * item.quantity, 0),
     [cart]
   );
 
   // Actions
   const addItem = useCallback((product) => {
     setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.id === product.id);
+      const existingItem = prevCart.find((item) => item.ID === product.ID);
       return existingItem
         ? prevCart.map((item) =>
-            item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+            item.ID === product.ID ? { ...item, quantity: item.quantity + 1 } : item
           )
         : [...prevCart, { ...product, quantity: 1 }];
     });
   }, []);
+  const addItemQuantity = useCallback((product, quantity) => {
+  setCart((prevCart) => {
+    const existingItem = prevCart.find((item) => item.ID === product.ID);
+    const maxAllowed = product.Stock - (existingItem?.quantity || 0);
 
-  const updateQuantity = useCallback((id, quantity) => {
+    // Ensure we don't add more than available stock
+    const addQuantity = Math.min(quantity, maxAllowed);
+
+    return existingItem
+      ? prevCart.map((item) => 
+          item.ID === product.ID 
+            ? { ...item, quantity: item.quantity + addQuantity } 
+            : item
+        )
+      : [...prevCart, { ...product, quantity: addQuantity }];
+  });
+}, []);
+
+  const updateQuantity = useCallback((ID, quantity) => {
     setCart((prevCart) =>
       prevCart.map((item) =>
-        item.id === id ? { ...item, quantity: Math.max(quantity, 1) } : item
+        item.ID === ID ? { ...item, quantity: Math.max(quantity, 1) } : item
       )
     );
   }, []);
 
-  const removeItem = useCallback((id) => {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== id));
+  const removeItem = useCallback((ID) => {
+    setCart((prevCart) => prevCart.filter((item) => item.ID !== ID));
   }, []);
 
   const clearCart = useCallback(() => {
     setCart([]);
   }, []);
 
-  const incrementItem = useCallback((id) => {
+  const incrementItem = useCallback((ID) => {
     setCart((prevCart) =>
       prevCart.map((item) =>
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
+        item.ID === ID ? { ...item, quantity: item.quantity + 1 } : item
       )
     );
   }, []);
 
-  const decrementItem = useCallback((id) => {
+  const decrementItem = useCallback((ID) => {
     setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.id === id);
+      const existingItem = prevCart.find((item) => item.ID === ID);
       if (existingItem.quantity === 1) {
-        return prevCart.filter((item) => item.id !== id);
+        return prevCart.filter((item) => item.ID !== ID);
       }
       return prevCart.map((item) =>
-        item.id === id ? { ...item, quantity: item.quantity - 1 } : item
+        item.ID === ID ? { ...item, quantity: item.quantity - 1 } : item
       );
     });
   }, []);
 
   // Helpers
   const isInCart = useCallback(
-    (id) => cart.some((item) => item.id === id),
+    (ID) => cart.some((item) => item.ID === ID),
     [cart]
   );
 
   const getItemQuantity = useCallback(
-    (id) => cart.find((item) => item.id === id)?.quantity || 0,
+    (ID) => cart.find((item) => item.ID === ID)?.quantity || 0,
     [cart]
   );
 
@@ -100,6 +117,7 @@ useEffect(() => {
         cart,
         totalItems,
         totalPrice,
+        addItemQuantity,
         addItem,
         updateQuantity,
         removeItem,
