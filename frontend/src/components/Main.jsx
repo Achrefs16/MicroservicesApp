@@ -7,7 +7,7 @@ const Main = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+const [searchTerm, setSearchTerm] = useState('');
   // useEffect to fetch products when the component mounts
   useEffect(() => {
     const fetchProducts = async () => {
@@ -27,7 +27,13 @@ const Main = () => {
 
     fetchProducts();
   }, []); 
-
+const filteredProducts = products.filter(product => {
+  const searchLower = searchTerm.toLowerCase();
+  return (
+    product.Name.toLowerCase().includes(searchLower) ||
+    product.Description.toLowerCase().includes(searchLower)
+  );
+});
 const categories = [
   { category: 'Smartphones & Accessories', image: '/images/smartphones.webp' },
   { category: 'Laptops & Computers', image: '/images/laptops.jpg' },
@@ -75,13 +81,28 @@ const categories = [
       {/* Featured Products Section */}
       <section className="bg-white py-16 px-4">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold text-gray-800 mb-12 text-center">Featured Products</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {products.map((product) => (
-              <ProductCard key={product.ID} product={product} />
-            ))}
-          </div>
-        </div>
+  <h2 className="text-3xl font-bold text-gray-800 mb-12 text-center">Featured Products</h2>
+  <div className="relative flex items-center justify-center w-full mb-4">
+  <input
+  type="text"
+  placeholder="Search..."
+  value={searchTerm}
+  onChange={(e) => setSearchTerm(e.target.value)}
+  className="px-3 w-96 py-2 rounded-md text-sm bg-gray-100 border-2 border-gray-600 focus:outline-none focus:ring focus:ring-gray-900"
+/>
+  </div>
+  {filteredProducts.length === 0 ? (
+    <div className="text-center py-8">
+      <p className="text-gray-500 text-lg">No products found matching your search.</p>
+    </div>
+  ) : (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      {filteredProducts.map((product) => (
+        <ProductCard key={product.ID} product={product} />
+      ))}
+    </div>
+  )}
+</div>
       </section>
 
       {/* Newsletter Section */}

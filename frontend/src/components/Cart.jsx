@@ -2,7 +2,7 @@
 import React from "react";
 import { useCart } from "../app/context/CartContext";
 import { FiX } from "react-icons/fi";
-const Cart = ({ closeCart }) => {
+const Cart = ({ closeCart,toggleLogin }) => {
 const { cart, removeItem, clearCart, incrementItem, decrementItem, totalPrice } = useCart();
 
 const increment = (quantity,id,Stock) => {
@@ -16,10 +16,21 @@ const increment = (quantity,id,Stock) => {
            if (quantity >=1) return decrementItem(id);
 
   };
+  const handleCheckout = () => {
+  const token = localStorage.getItem("usertoken"); // Vérifier si le token est stocké
+
+  if (!token) {
+   
+    toggleLogin()// Redirection vers la page de connexion
+  } else {
+    window.location.href = "/checkout/address"; // Redirection vers le formulaire d'adresse
+  }
+};
+
   return (
 
-<div className="absolute inset-0 bg-black bg-opacity-50 z-40">
-  <div className="bg-white shadow absolute p-8 z-50 right-0 h-full max-w-2xl w-full flex flex-col">
+<div className="absolute inset-0 bg-black bg-opacity-50 z-20">
+  <div className="bg-white shadow absolute p-8 z-30 right-0 h-full max-w-2xl w-full flex flex-col">
       <FiX   onClick={closeCart}  className="cursor-pointer p-0.5 text-3xl rounded hover:bg-gray-200"/>
     <div className="px-4 py-6 sm:px-8 sm:py-10 flex-1 overflow-auto"> 
     
@@ -83,7 +94,7 @@ const increment = (quantity,id,Stock) => {
         </div>
     <div className="flex justify-between mt-auto px-4 pb-4">
       
-      <button className="w-full py-2 bg-black text-white rounded-lg hover:bg-gray-900">
+      <button onClick={handleCheckout} className="w-full py-2 bg-black text-white rounded-lg hover:bg-gray-900">
         Checkout
       </button>
     </div>

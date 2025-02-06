@@ -1,6 +1,6 @@
 "use client";
 import { toast } from "react-hot-toast";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { FiShoppingCart } from "react-icons/fi";
 import { FaUser } from "react-icons/fa";
@@ -9,6 +9,7 @@ import SignUpModal from "./SignUpModal";
 import Cart from "./Cart";
 import axios from "axios";
 import { useCart } from "../app/context/CartContext"; // Import useCart
+import ProfileModal from "./ProfileModal";
 
 const API_URL = "http://localhost:5000/api/auth";
 
@@ -19,14 +20,26 @@ const Navbar = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [token, setToken] = useState(null);
+  useEffect(() => {
+    const storedToken = localStorage.getItem("usertoken");
+    if (storedToken) {
+      setToken(storedToken);
+      setIsSignedIn(true);
+    }
+  }, []);
+
 
   const toggleProfile = () => {
-    if (isSignedIn) {
-      window.location.href = "/profile";
+    if (token) {
+    setIsSignedIn(true)
+    setIsOpen(true)
     } else {
+       setIsSignedIn(false)
       setIsProfileOpen(true);
     }
   };
+
 
   const toggleSignup = () => {
     setIsProfileOpen(false);
@@ -42,7 +55,7 @@ const Navbar = () => {
     try {
       const response = await axios.post(`${API_URL}/signin`, userCredentials);
       if (response.data.success) {
-        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("usertoken", response.data.token);
         setIsSignedIn(true);
         setIsProfileOpen(false);
         toast.success("Connexion réussie !");
@@ -89,13 +102,7 @@ const Navbar = () => {
             
           </div>
           <div className="hidden md:flex items-center space-x-4">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search..."
-                className="px-3 py-2 rounded-md text-sm bg-gray-300 focus:outline-none focus:ring focus:ring-gray-600"
-              />
-            </div>
+           
 
             {/* Cart Button with Badge */}
             <button className="relative focus:outline-none" onClick={handleCartToggle}>
@@ -120,13 +127,13 @@ const Navbar = () => {
       </div>
 
       {/* Cart Modal */}
-      {isCartOpen && <Cart closeCart={() => setIsCartOpen(false)} />}
+      {isCartOpen && <Cart closeCart={() => setIsCartOpen(false)} toggleLogin={toggleLogin} />}
 
       {/* Login Modal */}
       {isProfileOpen && !isSignedIn && (
         <>
-          <div className="fixed inset-0 bg-black opacity-50 z-10" />
-          <div className="fixed inset-0 flex items-center justify-center z-20">
+          <div className="fixed inset-0 bg-black opacity-50 z-40" />
+          <div className="fixed inset-0 flex items-center justify-center z-50">
             <LoginModal
               onClose={() => setIsProfileOpen(false)}
               onSignIn={handleSignIn}
@@ -139,12 +146,25 @@ const Navbar = () => {
       {/* Sign-Up Modal */}
       {isSignUpOpen && (
         <>
-          <div className="fixed inset-0 bg-black opacity-50 z-10" />
-          <div className="fixed inset-0 flex items-center justify-center z-20">
+          <div className="fixed inset-0 bg-black opacity-50 z-40" />
+          <div className="fixed inset-0 flex items-center justify-center z-50">
             <SignUpModal
               onClose={() => setIsSignUpOpen(false)}
               onSignUp={handleSignUp}
               onLoginClick={toggleLogin}
+            />
+          </div>
+        </>
+      )}
+      {isOpen && isSignedIn && (
+        <>
+       
+         <div className="fixed right-0 mt-1 flex items-center justify-center z-50">
+            <ProfileModal
+              onClose={() => setIsOpen(false)
+                
+              }
+              
             />
           </div>
         </>
