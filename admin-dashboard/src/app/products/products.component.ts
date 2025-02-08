@@ -97,7 +97,7 @@ createProduct(): void {
     }
   };
 
-  this.http.post<Product>('http://localhost:4000/products', formData, { headers }).subscribe({
+  this.http.post<Product>('http://ec2-51-20-188-242.eu-north-1.compute.amazonaws.com/products/products', formData, { headers }).subscribe({
     next: (createdProduct) => {
       this.successMessage = 'Product created successfully!';
       this.isSubmitting = false;
@@ -193,7 +193,7 @@ updateProduct(): void {
     formData.append('image', this.selectedFileForUpdate);
 
     this.http.put<Product>(
-      `http://localhost:4000/products/${this.selectedProduct.id}`,
+      `http://ec2-51-20-188-242.eu-north-1.compute.amazonaws.com/products/products/${this.selectedProduct.id}`,
       formData, { headers }
     ).subscribe({
       next: (updatedProduct) => {
@@ -212,7 +212,7 @@ updateProduct(): void {
   } else {
     // Update without an image (send JSON).
     this.http.put<Product>(
-      `http://localhost:4000/products/${this.selectedProduct.id}`,
+      `http://ec2-51-20-188-242.eu-north-1.compute.amazonaws.com/products/products/${this.selectedProduct.id}`,
       this.selectedProduct, { headers }
     ).subscribe({
       next: (updatedProduct) => {
