@@ -10,7 +10,7 @@ go.work.sum
 vendor/
 uploads/
 # .env file for environment variables
-.env
+
 
 # IDE or editor files
 .idea/
