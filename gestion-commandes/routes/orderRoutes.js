@@ -8,7 +8,7 @@ const router = express.Router();
 
 // Separate connection to authentication-service database
 const authServiceConnection = mongoose.createConnection(
-  process.env.AUTH_SERVICE_DB_URI || "mongodb://localhost:27017/authentication-service",
+  process.env.AUTH_SERVICE_DB_URI || "mongodb+srv://Achrefs16:94592577Ach@cluster0.9iou3.mongodb.net/authentication-service?retryWrites=true&w=majority&appName=Cluster0/authentication-service",
   {}
 );
 
