@@ -275,7 +275,7 @@ confirmDelete(): void {
     };
 
     // Delete product with the provided product ID
-    this.http.delete(`http://localhost:4000/products/${this.productToDelete.id}`, { headers })
+    this.http.delete(`http://ec2-51-20-188-242.eu-north-1.compute.amazonaws.com/products/products/${this.productToDelete.id}`, { headers })
       .subscribe({
         next: () => {
           // Remove the product from the list

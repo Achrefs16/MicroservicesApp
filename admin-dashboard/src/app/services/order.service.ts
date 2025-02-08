@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class OrderService {
-  private apiUrl = 'http://ec2-51-20-188-242.eu-north-1.compute.amazonaws.com/api/orders'; // Update with your API URL
+  private apiUrl = 'http://ec2-51-20-188-242.eu-north-1.compute.amazonaws.com/api/orders/api/orders'; // Update with your API URL
 
   constructor(private http: HttpClient) {}
 

@@ -13,7 +13,7 @@ const [searchTerm, setSearchTerm] = useState('');
     const fetchProducts = async () => {
       try {
         // Adjust the URL to match your backend endpoint
-        const response = await axios.get("http://localhost:4000/products");
+        const response = await axios.get("http://ec2-51-20-188-242.eu-north-1.compute.amazonaws.com/api/products/products");
         setProducts(response.data);
         console.log(response.data);
         

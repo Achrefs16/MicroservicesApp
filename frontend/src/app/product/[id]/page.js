@@ -18,7 +18,7 @@ const ProductPage = () => {
     const fetchProduct = async () => {
       try {
         // Adjust the URL to match your backend endpoint
-        const response = await axios.get(`http://localhost:4000/products/${id}`);
+        const response = await axios.get(`http://localhost:4000/products/products/${id}`);
         setProduct(response.data);
         console.log(response.data);
         

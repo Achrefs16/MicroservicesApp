@@ -44,7 +44,7 @@ const handlePayment = async () => {
 console.log(orderData);
 
   try {
-    const response = await axios.post("http://localhost:5100/api/order", orderData, {
+    const response = await axios.post("http://ec2-51-20-188-242.eu-north-1.compute.amazonaws.com/api/orders/api/order", orderData, {
       headers: {
         "Content-Type": "application/json",
       },
