@@ -110,7 +110,7 @@ console.log(orderData);
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 ">
               <div className="w-1/2">
                 <label className="block text-gray-600 text-sm font-medium mb-1">Expiry Date</label>
                 <input

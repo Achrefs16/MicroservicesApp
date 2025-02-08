@@ -31,7 +31,7 @@ const ContactForm = () => {
         toast.error(response.data.message || "Something went wrong, please try again.");
       }
     } catch (error) {
-      toast.error("Error sending message. Please try again.");
+      toast.error("Error sending message . Please try again.");
     } finally {
       setLoading(false);
     }
