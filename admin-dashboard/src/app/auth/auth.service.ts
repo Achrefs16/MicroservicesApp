@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class AuthService {
-  private baseUrl = 'http://ec2-51-20-188-242.eu-north-1.compute.amazonaws.com/api/auth/api/auth'; // Backend URL for admin
+  private baseUrl = 'https://microservicesapp.duckdns.org/api/auth/api/auth'; // Backend URL for admin
 
   constructor(private http: HttpClient) {}
 

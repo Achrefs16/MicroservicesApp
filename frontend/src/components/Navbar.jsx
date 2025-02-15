@@ -5,7 +5,7 @@ import Link from "next/link";
 import { FiShoppingCart } from "react-icons/fi";
 import { FaUser } from "react-icons/fa";
 import LoginModal from "./LoginModal";
-import SignUpModal from "./SignUpModal";
+import SignUpModal from "./SignupModal";
 import Cart from "./Cart";
 import axios from "axios";
 import { useCart } from "../app/context/CartContext"; // Import useCart

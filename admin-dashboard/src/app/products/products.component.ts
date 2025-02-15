@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient ,HttpHeaders} from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router'; 
 interface Product {
   id?: number;
   name: string;
@@ -43,7 +44,7 @@ export class ProductsComponent implements OnInit {
     toggleForm() {
     this.showForm = !this.showForm;
   }
-  constructor(private http: HttpClient, private toastr: ToastrService ) {}
+  constructor(private http: HttpClient, private toastr: ToastrService,private router: Router ) {}
 
   ngOnInit(): void {
     this.fetchProducts();
@@ -91,13 +92,13 @@ createProduct(): void {
     if (error.status === 401) {
       this.errorMessage = 'Session expired! Please log in again.';
       localStorage.removeItem('tokenAdmin');
-      window.location.href = '/login'; // Redirect to login page
+     this.router.navigate(['/login']); // Redirect to login page
     } else {
       this.errorMessage = 'Failed to create product.';
     }
   };
 
-  this.http.post<Product>('http://ec2-51-20-188-242.eu-north-1.compute.amazonaws.com/products/products', formData, { headers }).subscribe({
+  this.http.post<Product>('https://microservicesapp.duckdns.org/api/products/products', formData, { headers }).subscribe({
     next: (createdProduct) => {
       this.successMessage = 'Product created successfully!';
       this.isSubmitting = false;
@@ -116,7 +117,7 @@ createProduct(): void {
 
   // READ: Fetch products from the backend
   fetchProducts(): void {
-    this.http.get<any[]>('http://localhost:4000/products')
+    this.http.get<any[]>('https://microservicesapp.duckdns.org/api/products/products')
       .subscribe(data => {
         this.products = data.map(product => ({
           id: product.ID,
@@ -176,7 +177,7 @@ updateProduct(): void {
       
       // Remove token from local storage and log the user out
       localStorage.removeItem('tokenAdmin');
-      window.location.href = '/login'; // Redirect to login page
+      this.router.navigate(['/login']);// Redirect to login page
     } else {
          this.toastr.warning('Failed to update product.');
     }
@@ -193,7 +194,7 @@ updateProduct(): void {
     formData.append('image', this.selectedFileForUpdate);
 
     this.http.put<Product>(
-      `http://ec2-51-20-188-242.eu-north-1.compute.amazonaws.com/products/products/${this.selectedProduct.id}`,
+      `https://microservicesapp.duckdns.org/api/products/products/${this.selectedProduct.id}`,
       formData, { headers }
     ).subscribe({
       next: (updatedProduct) => {
@@ -212,7 +213,7 @@ updateProduct(): void {
   } else {
     // Update without an image (send JSON).
     this.http.put<Product>(
-      `http://ec2-51-20-188-242.eu-north-1.compute.amazonaws.com/products/products/${this.selectedProduct.id}`,
+      `https://microservicesapp.duckdns.org/api/products/products/${this.selectedProduct.id}`,
       this.selectedProduct, { headers }
     ).subscribe({
       next: (updatedProduct) => {
@@ -268,14 +269,14 @@ confirmDelete(): void {
 
         // Remove token from local storage and log the user out
         localStorage.removeItem('tokenAdmin');
-        window.location.href = '/login'; // Redirect to login page
+       this.router.navigate(['/login']); // Redirect to login page
       } else {
         this.toastr.warning('Failed to delete product.');
       }
     };
 
     // Delete product with the provided product ID
-    this.http.delete(`http://ec2-51-20-188-242.eu-north-1.compute.amazonaws.com/products/products/${this.productToDelete.id}`, { headers })
+    this.http.delete(`https://microservicesapp.duckdns.org/api/products/products/${this.productToDelete.id}`, { headers })
       .subscribe({
         next: () => {
           // Remove the product from the list

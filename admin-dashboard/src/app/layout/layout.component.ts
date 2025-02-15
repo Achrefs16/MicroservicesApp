@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router'; 
 
 @Component({
   selector: 'app-layout',
@@ -7,9 +8,12 @@ import { Component } from '@angular/core';
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.css'
 })
+
 export class LayoutComponent {
+constructor( private router: Router) {}
+
  onLogout(): void {
   localStorage.removeItem('tokenAdmin');
-  window.location.href = '/';  // Remove JWT token
+  this.router.navigate(['/login']);  // Remove JWT token
 }
 }

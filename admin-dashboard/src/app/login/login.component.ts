@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
 import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router'; 
 @Component({
   selector: 'app-login',
    standalone: false,
@@ -12,7 +13,8 @@ export class LoginComponent {
   password: string = '';
 
   constructor(private authService: AuthService,
-    private toastr: ToastrService 
+    private toastr: ToastrService ,
+    private router: Router
   ) {}
 
   onSubmit(): void {
@@ -21,7 +23,7 @@ export class LoginComponent {
         if (response.success) {
           localStorage.setItem('tokenAdmin', response.token); // Store JWT token
           this.toastr.success('Admin login successful', 'Success');
-          window.location.href = '/products'; // Redirect to admin dashboard
+          this.router.navigate(['/products']); // Redirect to admin dashboard
         } else {
          this.toastr.warning(response.message, 'Login Failed'); 
         }
