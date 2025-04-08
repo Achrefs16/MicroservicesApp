@@ -1,0 +1,49 @@
+version: '3.9'
+
+services:
+  user-authentication:
+    build: ./user-authentication
+    ports:
+      - "5000:5000"
+    restart: always
+    networks:
+      - backend
+
+  product-catalogue:
+    build: ./product-catalogue
+    ports:
+      - "4000:4000"
+    restart: always
+    networks:
+      - backend
+
+  gestion-commandes:
+    build: ./gestion-commandes
+    ports:
+      - "5100:5100"
+    restart: always
+    networks:
+      - backend
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    restart: always
+    networks:
+      - frontend
+    depends_on:
+      - user-authentication
+      - product-catalogue
+
+  admin-dashboard:
+    build: ./admin-dashboard
+    ports:
+      - "4200:80"
+    restart: always
+    networks:
+      - frontend
+
+networks:
+  backend:
+  frontend:
