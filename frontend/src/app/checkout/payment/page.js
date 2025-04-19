@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { useAddress } from "../../context/AddressContext";
 import { useCart } from "../../context/CartContext";
 import Navbar from "@/components/Navbar";
@@ -7,7 +7,13 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 const PaymentPage = () => {
 
-    const token = localStorage.getItem("usertoken");
+  const [token, setToken] = useState(null);
+
+useEffect(() => {
+  const storedToken = localStorage.getItem("usertoken");
+  setToken(storedToken);
+}, []);
+
   const { address } = useAddress();
   const { totalPrice,clearCart,cart } = useCart();
   const [cardDetails, setCardDetails] = useState({
@@ -34,7 +40,7 @@ const handlePayment = async () => {
   }
 
 
-
+  const ordersUrl = process.env.NEXT_PUBLIC_ORDERS_URL;
   const orderData = {
     token, // Send user token
     address, // Shipping address
@@ -44,7 +50,7 @@ const handlePayment = async () => {
 console.log(orderData);
 
   try {
-    const response = await axios.post("http://ec2-51-20-188-242.eu-north-1.compute.amazonaws.com/api/orders/api/order", orderData, {
+    const response = await axios.post(`${ordersUrl}/api/order`, orderData, {
       headers: {
         "Content-Type": "application/json",
       },

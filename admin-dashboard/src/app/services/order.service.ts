@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
+import { environment } from './../../environments/environments';
 @Injectable({
   providedIn: 'root'
 })
 export class OrderService {
-  private apiUrl = 'https://microservicesapp.duckdns.org/api/orders/api/orders'; // Update with your API URL
+  private apiUrl = `${environment.ordersUrl}/api/orders`; // Update with your API URL
 
   constructor(private http: HttpClient) {}
 

@@ -8,12 +8,14 @@ const Main = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 const [searchTerm, setSearchTerm] = useState('');
+
+const productUrl = process.env.NEXT_PUBLIC_PRODUCT_URL;
   // useEffect to fetch products when the component mounts
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         // Adjust the URL to match your backend endpoint
-        const response = await axios.get("http://ec2-51-20-188-242.eu-north-1.compute.amazonaws.com/api/products/products");
+        const response = await axios.get(`${productUrl}/api/products/products`);
         setProducts(response.data);
         console.log(response.data);
         

@@ -12,13 +12,14 @@ const ProductPage = () => {
   const { id } = useParams();
  const [product, setProduct] = useState([]);
  const { cart, addItemQuantity } = useCart();
+ const productUrl = process.env.NEXT_PUBLIC_PRODUCT_URL;
   useEffect(() => {
     console.log(id);
     
     const fetchProduct = async () => {
       try {
         // Adjust the URL to match your backend endpoint
-        const response = await axios.get(`http://localhost:4000/products/products/${id}`);
+        const response = await axios.get(`${productUrl}/products/products/${id}`);
         setProduct(response.data);
         console.log(response.data);
         
