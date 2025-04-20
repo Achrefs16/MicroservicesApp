@@ -15,7 +15,7 @@ const productUrl = process.env.NEXT_PUBLIC_PRODUCT_URL;
     const fetchProducts = async () => {
       try {
         // Adjust the URL to match your backend endpoint
-        const response = await axios.get(`${productUrl}/api/products/products`);
+        const response = await axios.get(`${productUrl}/products`);
         setProducts(response.data);
         console.log(response.data);
         
