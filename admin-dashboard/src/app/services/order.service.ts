@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class OrderService {
-  private apiUrl = 'https://microservicesapp.duckdns.org/api/orders/api/orders'; // Update with your API URL
+  private apiUrl = 'https://microservicesapp.duckdns.org/api/orders/api/orders'; 
 
   constructor(private http: HttpClient) {}
 
