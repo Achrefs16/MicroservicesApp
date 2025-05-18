@@ -11,7 +11,7 @@ import axios from "axios";
 import { useCart } from "../app/context/CartContext"; // Import useCart
 import ProfileModal from "./ProfileModal";
 
-const API_URL = "http://ec2-51-20-188-242.eu-north-1.compute.amazonaws.com/api/auth/api/auth";
+const authUrl = process.env.NEXT_PUBLIC_AUTH_URL;
 
 const Navbar = () => {
   const { clientTotalItems } = useCart(); // Get total items from cart
@@ -53,7 +53,7 @@ const Navbar = () => {
 
   const handleSignIn = async (userCredentials) => {
     try {
-      const response = await axios.post(`${API_URL}/signin`, userCredentials);
+      const response = await axios.post(`${authUrl}/signin`, userCredentials);
       if (response.data.success) {
         localStorage.setItem("usertoken", response.data.token);
         setIsSignedIn(true);
@@ -70,7 +70,7 @@ const Navbar = () => {
 
   const handleSignUp = async (userCredentials) => {
     try {
-      const response = await axios.post(`${API_URL}/signup`, userCredentials);
+      const response = await axios.post(`${authUrl}/signup`, userCredentials);
       if (response.data.success) {
         toast.success("Inscription réussie !");
         setIsSignUpOpen(false);

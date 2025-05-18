@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient ,HttpHeaders} from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router'; 
+import { environment } from './../../environments/environments';
 interface Product {
   id?: number;
   name: string;
@@ -98,7 +99,7 @@ createProduct(): void {
     }
   };
 
-  this.http.post<Product>('https://microservicesapp.duckdns.org/api/products/products', formData, { headers }).subscribe({
+  this.http.post<Product>(`${environment.productUrl}/products`, formData, { headers }).subscribe({
     next: (createdProduct) => {
       this.successMessage = 'Product created successfully!';
       this.isSubmitting = false;
@@ -117,7 +118,7 @@ createProduct(): void {
 
   // READ: Fetch products from the backend
   fetchProducts(): void {
-    this.http.get<any[]>('https://microservicesapp.duckdns.org/api/products/products')
+    this.http.get<any[]>(`${environment.productUrl}/products`)
       .subscribe(data => {
         this.products = data.map(product => ({
           id: product.ID,
@@ -194,7 +195,7 @@ updateProduct(): void {
     formData.append('image', this.selectedFileForUpdate);
 
     this.http.put<Product>(
-      `https://microservicesapp.duckdns.org/api/products/products/${this.selectedProduct.id}`,
+      `${environment.productUrl}/products/${this.selectedProduct.id}`,
       formData, { headers }
     ).subscribe({
       next: (updatedProduct) => {
@@ -213,7 +214,7 @@ updateProduct(): void {
   } else {
     // Update without an image (send JSON).
     this.http.put<Product>(
-      `https://microservicesapp.duckdns.org/api/products/products/${this.selectedProduct.id}`,
+      `${environment.productUrl}/products/${this.selectedProduct.id}`,
       this.selectedProduct, { headers }
     ).subscribe({
       next: (updatedProduct) => {
@@ -276,7 +277,7 @@ confirmDelete(): void {
     };
 
     // Delete product with the provided product ID
-    this.http.delete(`https://microservicesapp.duckdns.org/api/products/products/${this.productToDelete.id}`, { headers })
+    this.http.delete(`${environment.productUrl}/products/${this.productToDelete.id}`, { headers })
       .subscribe({
         next: () => {
           // Remove the product from the list
