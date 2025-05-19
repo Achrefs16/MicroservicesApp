@@ -1,0 +1,68 @@
+version: '3.9'
+
+services:
+  user-authentication:
+    build: ./user-authentication
+    ports:
+      - "5000:5000"
+    restart_policy:
+      condition: on-failure
+    deploy:
+      replicas: 3  # Specify the number of replicas you want
+    networks:
+      - backend
+
+  product-catalogue:
+    build: ./product-catalogue
+    ports:
+      - "4000:4000"
+    restart_policy:
+      condition: on-failure
+    deploy:
+      replicas: 3  # Specify the number of replicas
+    networks:
+      - backend
+
+  gestion-commandes:
+    build: ./gestion-commandes
+    ports:
+      - "5100:5100"
+    restart_policy:
+      condition: on-failure
+    deploy:
+      replicas: 3  # Specify the number of replicas
+    networks:
+      - backend
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    restart_policy:
+      condition: on-failure
+    depends_on:
+      - user-authentication
+      - product-catalogue
+    networks:
+      - frontend
+    deploy:
+      replicas: 2  # Frontend might have fewer replicas than backend services
+
+  admin-dashboard:
+    build: ./admin-dashboard
+    ports:
+      - "4200:4200"
+    restart_policy:
+      condition: on-failure
+    networks:
+      - frontend
+    deploy:
+      replicas: 2  # Admin dashboard might also have fewer replicas
+    depends_on:
+      - frontend
+
+networks:
+  backend:
+    driver: overlay  # Overlay network for communication across nodes
+  frontend:
+    driver: overlay  # Overlay network for frontend communication
