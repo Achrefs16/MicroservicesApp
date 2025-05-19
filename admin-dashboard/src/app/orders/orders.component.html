@@ -1,46 +1,157 @@
+<!-- Search and Filter Section -->
 <div class="container mx-auto p-6">
-  <h2 class="text-2xl font-bold text-gray-800 mb-4">Orders</h2>
-
-  <div *ngFor="let order of orders" class="bg-white shadow-lg rounded-lg p-6 mb-6">
-    <!-- Order Header -->
-    <div class="flex justify-between items-center border-b pb-4 mb-4">
-      <div>
-        <h3 class="text-lg font-semibold">Order ID: <span class="text-blue-600">{{ order._id }}</span></h3>
-        <p class="text-gray-600 text-sm">Placed on: {{ order.createdAt | date:'medium' }}</p>
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+    <h2 class="text-2xl font-bold text-gray-800">Orders</h2>
+    
+    <!-- Search Bar -->
+    <div class="w-full md:w-96">
+      <div class="relative">
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (input)="searchOrders()"
+          placeholder="Search orders..."
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+        <svg class="w-5 h-5 absolute right-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
       </div>
-      <span class="px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded-full">
-        Total: ${{ order.total }}
-      </span>
     </div>
+  </div>
 
-    <!-- User Info -->
-    <div class="bg-gray-100 p-4 rounded-md mb-4">
-      <p class="font-medium">Customer: {{ order.user.firstName }} {{ order.user.lastName }}</p>
-      <p class="text-sm text-gray-600">Email: {{ order.user.email }}</p>
-      <p class="text-sm text-gray-600">Role: {{ order.user.role }}</p>
-    </div>
+  <!-- Sort Controls -->
+  <div class="flex flex-wrap gap-2 mb-6">
+    <button
+      (click)="onSortChange('date')"
+      class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+      [class.bg-blue-100]="sortBy === 'date'"
+      [class.text-blue-800]="sortBy === 'date'"
+      [class.bg-gray-100]="sortBy !== 'date'"
+      [class.text-gray-800]="sortBy !== 'date'"
+    >
+      Date {{ sortBy === 'date' ? (sortDirection === 'asc' ? '↑' : '↓') : '' }}
+    </button>
+    <button
+      (click)="onSortChange('total')"
+      class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+      [class.bg-blue-100]="sortBy === 'total'"
+      [class.text-blue-800]="sortBy === 'total'"
+      [class.bg-gray-100]="sortBy !== 'total'"
+      [class.text-gray-800]="sortBy !== 'total'"
+    >
+      Total {{ sortBy === 'total' ? (sortDirection === 'asc' ? '↑' : '↓') : '' }}
+    </button>
+    <button
+      (click)="onSortChange('customer')"
+      class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+      [class.bg-blue-100]="sortBy === 'customer'"
+      [class.text-blue-800]="sortBy === 'customer'"
+      [class.bg-gray-100]="sortBy !== 'customer'"
+      [class.text-gray-800]="sortBy !== 'customer'"
+    >
+      Customer {{ sortBy === 'customer' ? (sortDirection === 'asc' ? '↑' : '↓') : '' }}
+    </button>
+  </div>
 
-    <!-- Address -->
-    <div class="bg-gray-50 p-4 rounded-md mb-4">
-      <h4 class="font-semibold text-gray-700">Shipping Address</h4>
-      <p class="text-sm text-gray-600">
-        {{ order.address.address }}, {{ order.address.city }} - {{ order.address.zip }}
-      </p>
-    </div>
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+    {{ errorMessage }}
+  </div>
 
-    <!-- Order Items -->
-    <div>
-      <h4 class="font-semibold text-gray-700 mb-2">Items Ordered</h4>
-      <div *ngFor="let item of order.items" class="flex justify-between p-2 border-b">
-        <div>
-          <p class="font-medium">{{ item.Name }}</p>
-          <p class="text-sm text-gray-500">ID: {{ item.ID }}</p>
-        </div>
-        <div class="text-right">
-          <p class="font-medium">${{ item.Price }}</p>
-          <p class="text-sm text-gray-500">Qty: {{ item.quantity }}</p>
+  <!-- Orders List -->
+  <div class="space-y-4">
+    <div *ngFor="let order of filteredOrders" 
+         class="bg-white shadow-lg rounded-lg overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-xl"
+         (click)="toggleOrderDetails(order._id)">
+      <!-- Basic Order Information (Always Visible) -->
+      <div class="p-4">
+        <div class="flex justify-between items-center">
+          <div class="flex-1">
+            <div class="flex items-center gap-3">
+              <h3 class="text-lg font-semibold text-gray-800">
+                Order #{{ order._id.slice(-6) }}
+              </h3>
+              <span class="px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded-full">
+                ${{ order.total.toFixed(2) }}
+              </span>
+            </div>
+            <div class="mt-1 flex items-center gap-4 text-sm text-gray-600">
+              <span>{{ order.createdAt | date:'medium' }}</span>
+              <span>•</span>
+              <span>{{ order.user.firstName }} {{ order.user.lastName }}</span>
+              <span>•</span>
+              <span>{{ order.items.length }} items</span>
+            </div>
+          </div>
+          <div class="flex items-center">
+            <svg class="w-5 h-5 text-gray-400 transition-transform duration-200"
+                 [class.rotate-180]="isOrderExpanded(order._id)"
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </div>
         </div>
       </div>
+
+      <!-- Expanded Order Details -->
+      <div *ngIf="isOrderExpanded(order._id)" 
+           class="border-t border-gray-100 bg-gray-50"
+           (click)="$event.stopPropagation()">
+        <div class="p-6">
+          <!-- Customer Info -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+              <h4 class="font-medium text-gray-700 mb-2">Customer Information</h4>
+              <div class="space-y-1">
+                <p class="text-sm">
+                  <span class="text-gray-600">Name:</span>
+                  <span class="font-medium">{{ order.user.firstName }} {{ order.user.lastName }}</span>
+                </p>
+                <p class="text-sm">
+                  <span class="text-gray-600">Email:</span>
+                  <span class="font-medium">{{ order.user.email }}</span>
+                </p>
+                <p class="text-sm">
+                  <span class="text-gray-600">Role:</span>
+                  <span class="font-medium">{{ order.user.role }}</span>
+                </p>
+              </div>
+            </div>
+
+            <!-- Shipping Address -->
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+              <h4 class="font-medium text-gray-700 mb-2">Shipping Address</h4>
+              <p class="text-sm text-gray-600">
+                {{ order.address.address }}<br>
+                {{ order.address.city }}, {{ order.address.zip }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Order Items -->
+          <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <h4 class="font-medium text-gray-700 p-4 border-b">Order Items</h4>
+            <div class="divide-y divide-gray-200">
+              <div *ngFor="let item of order.items" class="p-4 flex justify-between items-center">
+                <div>
+                  <p class="font-medium text-gray-800">{{ item.Name }}</p>
+                  <p class="text-sm text-gray-500">ID: {{ item.ID }}</p>
+                </div>
+                <div class="text-right">
+                  <p class="font-medium text-gray-800">${{ item.Price.toFixed(2) }}</p>
+                  <p class="text-sm text-gray-500">Qty: {{ item.quantity }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Results Message -->
+    <div *ngIf="filteredOrders.length === 0" class="text-center py-8">
+      <p class="text-gray-500">No orders found matching your search criteria.</p>
     </div>
   </div>
 </div>
