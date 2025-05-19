@@ -2,48 +2,76 @@ version: '3.9'
 
 services:
   user-authentication:
-    image: user-authentication
+    build:
+      context: ./user-authentication
+      dockerfile: Dockerfile
     ports:
       - "5000:5000"
-
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
     deploy:
       replicas: 3
       restart_policy:
         condition: on-failure
-
     networks:
       - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   product-catalogue:
-    image: product-catalogue
+    build:
+      context: ./product-catalogue
+      dockerfile: Dockerfile
     ports:
       - "4000:4000"
-
+    environment:
+      - PORT=4000
     deploy:
       replicas: 3
       restart_policy:
         condition: on-failure
-
     networks:
       - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   gestion-commandes:
-    image: gestion-commandes
+    build:
+      context: ./gestion-commandes
+      dockerfile: Dockerfile
     ports:
       - "5100:5100"
+    environment:
+      - NODE_ENV=production
+      - PORT=5100
     deploy:
       replicas: 3
       restart_policy:
         condition: on-failure
-
     networks:
       - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5100/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   frontend:
-    image: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
-
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
     depends_on:
       - user-authentication
       - product-catalogue
@@ -53,26 +81,34 @@ services:
         condition: on-failure
     networks:
       - frontend
-
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   admin-dashboard:
-    image: admin-dashboard
+    build:
+      context: ./admin-dashboard
+      dockerfile: Dockerfile
     ports:
       - "4200:4200"
-
-
     depends_on:
       - frontend
     deploy:
       replicas: 2
       restart_policy:
         condition: on-failure
-
     networks:
       - frontend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4200"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
 networks:
   backend:
-
     driver: overlay
   frontend:
     driver: overlay

@@ -2,6 +2,7 @@ package com.example.favoritesservice.integration;
 
 import com.example.favoritesservice.model.Favorite;
 import com.example.favoritesservice.repository.FavoriteRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,35 +12,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-@Testcontainers
 class FavoritesIntegrationTest {
-
-    @Container
-    static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0.2");
-
-    @Container
-    static GenericContainer<?> redisContainer = new GenericContainer<>(DockerImageName.parse("redis:7.2.3"))
-            .withExposedPorts(6379);
-
-    @DynamicPropertySource
-    static void setProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
-        registry.add("spring.redis.host", redisContainer::getHost);
-        registry.add("spring.redis.port", () -> redisContainer.getMappedPort(6379));
-    }
 
     @Autowired
     private MockMvc mockMvc;
@@ -47,14 +27,27 @@ class FavoritesIntegrationTest {
     @Autowired
     private FavoriteRepository favoriteRepository;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     private String userId;
     private String productId;
+    private Favorite testFavorite;
+
+    @DynamicPropertySource
+    static void setProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.data.mongodb.uri", () -> "mongodb://localhost:27017/favoritesdb");
+        registry.add("spring.data.mongodb.auto-index-creation", () -> true);
+        registry.add("spring.redis.host", () -> "localhost");
+        registry.add("spring.redis.port", () -> 6379);
+    }
 
     @BeforeEach
     void setUp() {
         favoriteRepository.deleteAll();
-        userId = "user123";
-        productId = "product456";
+        userId = "testUser123";
+        productId = "testProduct456";
+        testFavorite = new Favorite(userId, productId);
     }
 
     @Test
@@ -63,16 +56,15 @@ class FavoritesIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userId").value(userId))
-                .andExpect(jsonPath("$.productId").value(productId));
+                .andExpect(jsonPath("$.productId").value(productId))
+                .andExpect(jsonPath("$.id").exists());
 
         assertTrue(favoriteRepository.existsByUserIdAndProductId(userId, productId));
     }
 
     @Test
     void addFavorite_WhenExists_ShouldReturnConflict() throws Exception {
-        // Add a favorite first
-        Favorite favorite = new Favorite(userId, productId);
-        favoriteRepository.save(favorite);
+        favoriteRepository.save(testFavorite);
 
         mockMvc.perform(post("/api/favorites/{userId}/product/{productId}", userId, productId)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -81,19 +73,20 @@ class FavoritesIntegrationTest {
 
     @Test
     void getUserFavorites_ShouldReturnFavorites() throws Exception {
-        // Add a favorite first
-        Favorite favorite = new Favorite(userId, productId);
-        favoriteRepository.save(favorite);
+        favoriteRepository.save(testFavorite);
 
-        mockMvc.perform(get("/api/favorites/{userId}", userId))
+        mockMvc.perform(get("/api/favorites/{userId}", userId)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].userId").value(userId))
-                .andExpect(jsonPath("$[0].productId").value(productId));
+                .andExpect(jsonPath("$[0].productId").value(productId))
+                .andExpect(jsonPath("$[0].id").exists());
     }
 
     @Test
     void getUserFavorites_WhenNoFavorites_ShouldReturnEmptyList() throws Exception {
-        mockMvc.perform(get("/api/favorites/{userId}", userId))
+        mockMvc.perform(get("/api/favorites/{userId}", userId)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$").isEmpty());
@@ -101,9 +94,7 @@ class FavoritesIntegrationTest {
 
     @Test
     void removeFavorite_ShouldDeleteFavorite() throws Exception {
-        // Add a favorite first
-        Favorite favorite = new Favorite(userId, productId);
-        favoriteRepository.save(favorite);
+        favoriteRepository.save(testFavorite);
 
         mockMvc.perform(delete("/api/favorites/{userId}/product/{productId}", userId, productId))
                 .andExpect(status().isNoContent());
@@ -118,19 +109,37 @@ class FavoritesIntegrationTest {
     }
 
     @Test
-    void isFavorite_WhenExists_ShouldReturnTrue() throws Exception {
-        // Add a favorite first
-        Favorite favorite = new Favorite(userId, productId);
-        favoriteRepository.save(favorite);
+    void isFavorite_ShouldReturnTrue_WhenFavoriteExists() throws Exception {
+        favoriteRepository.save(testFavorite);
 
-        mockMvc.perform(get("/api/favorites/{userId}/product/{productId}/check", userId, productId))
+        mockMvc.perform(get("/api/favorites/{userId}/product/{productId}", userId, productId)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("true"));
     }
 
     @Test
-    void isFavorite_WhenNotExists_ShouldReturnFalse() throws Exception {
-        mockMvc.perform(get("/api/favorites/{userId}/product/{productId}/check", userId, productId))
+    void isFavorite_ShouldReturnFalse_WhenFavoriteDoesNotExist() throws Exception {
+        mockMvc.perform(get("/api/favorites/{userId}/product/{productId}", userId, productId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("false"));
+    }
+
+    @Test
+    void checkFavorite_ShouldReturnTrue_WhenFavoriteExists() throws Exception {
+        favoriteRepository.save(testFavorite);
+
+        mockMvc.perform(get("/api/favorites/{userId}/product/{productId}/check", userId, productId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+    }
+
+    @Test
+    void checkFavorite_ShouldReturnFalse_WhenFavoriteDoesNotExist() throws Exception {
+        mockMvc.perform(get("/api/favorites/{userId}/product/{productId}/check", userId, productId)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("false"));
     }

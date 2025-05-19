@@ -1,13 +1,16 @@
-FROM node:18
-
+# Build stage
+FROM node:18-alpine AS builder
 WORKDIR /app
-
 COPY package*.json ./
-RUN npm install
-
+RUN npm ci
 COPY . .
+RUN npm run build -- --configuration production
 
-# Expose the Angular dev server port
+# Production stage
+FROM nginx:alpine
+COPY --from=builder /app/dist/admin-dashboard /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 EXPOSE 4200
 
-CMD ["npx", "ng", "serve", "--host", "0.0.0.0"]
+CMD ["nginx", "-g", "daemon off;"]

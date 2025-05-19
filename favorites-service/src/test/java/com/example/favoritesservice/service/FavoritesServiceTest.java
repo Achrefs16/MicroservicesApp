@@ -8,9 +8,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -31,13 +32,13 @@ class FavoritesServiceTest {
 
     @BeforeEach
     void setUp() {
-        userId = "user123";
-        productId = "product456";
+        userId = "testUser123";
+        productId = "testProduct456";
         favorite = new Favorite(userId, productId);
     }
 
     @Test
-    void getUserFavorites_ShouldReturnListOfFavorites() {
+    void getUserFavorites_ShouldReturnFavoritesList() {
         List<Favorite> expectedFavorites = Arrays.asList(favorite);
         when(favoriteRepository.findByUserId(userId)).thenReturn(expectedFavorites);
 
@@ -48,7 +49,7 @@ class FavoritesServiceTest {
     }
 
     @Test
-    void addFavorite_WhenNotExists_ShouldAddFavorite() {
+    void addFavorite_ShouldCreateNewFavorite() {
         when(favoriteRepository.existsByUserIdAndProductId(userId, productId)).thenReturn(false);
         when(favoriteRepository.save(any(Favorite.class))).thenReturn(favorite);
 
@@ -64,7 +65,9 @@ class FavoritesServiceTest {
     void addFavorite_WhenExists_ShouldThrowException() {
         when(favoriteRepository.existsByUserIdAndProductId(userId, productId)).thenReturn(true);
 
-        assertThrows(RuntimeException.class, () -> favoritesService.addFavorite(userId, productId));
+        assertThrows(ResponseStatusException.class, () -> 
+            favoritesService.addFavorite(userId, productId)
+        );
         verify(favoriteRepository, never()).save(any(Favorite.class));
     }
 
@@ -77,7 +80,7 @@ class FavoritesServiceTest {
     }
 
     @Test
-    void isFavorite_WhenExists_ShouldReturnTrue() {
+    void isFavorite_ShouldReturnTrue_WhenFavoriteExists() {
         when(favoriteRepository.existsByUserIdAndProductId(userId, productId)).thenReturn(true);
 
         boolean result = favoritesService.isFavorite(userId, productId);
@@ -87,7 +90,7 @@ class FavoritesServiceTest {
     }
 
     @Test
-    void isFavorite_WhenNotExists_ShouldReturnFalse() {
+    void isFavorite_ShouldReturnFalse_WhenFavoriteDoesNotExist() {
         when(favoriteRepository.existsByUserIdAndProductId(userId, productId)).thenReturn(false);
 
         boolean result = favoritesService.isFavorite(userId, productId);

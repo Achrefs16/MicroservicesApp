@@ -1,15 +1,18 @@
-FROM golang:1.23.6
-
+# Build stage
+FROM golang:1.21-alpine AS builder
 WORKDIR /app
-
-COPY go.mod ./
-COPY go.sum ./
+COPY go.* ./
 RUN go mod download
-
 COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
-RUN go build -o main .
+# Production stage
+FROM alpine:latest
+WORKDIR /app
+COPY --from=builder /app/main .
+COPY --from=builder /app/uploads ./uploads
 
+EXPOSE 4000
 
 CMD ["./main"]
 
