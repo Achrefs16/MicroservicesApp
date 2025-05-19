@@ -1,6 +1,6 @@
 // pages/about.js
 
-import Navbar from "@/components/Navbar"
+import Navbar from "../../components/Navbar"
 import Head from 'next/head'
 
 const About = () => {
@@ -23,7 +23,7 @@ const About = () => {
         <h2 className="text-2xl font-semibold mt-8 mb-4">Notre vision</h2>
         <p className="text-lg mb-6">
           Chez <span className="font-bold">[Nom de votre site]</span>, nous croyons que la technologie doit être accessible, fiable et abordable. 
-          Notre objectif est de vous offrir une large gamme d’électroniques répondant à tous vos besoins, que ce soit pour le travail, le divertissement ou l'innovation. 
+          Notre objectif est de vous offrir une large gamme d'électroniques répondant à tous vos besoins, que ce soit pour le travail, le divertissement ou l'innovation. 
           Nous sommes déterminés à offrir à nos clients les meilleurs produits accompagnés d'un service exceptionnel.
         </p>
 
@@ -42,12 +42,12 @@ const About = () => {
         <h2 className="text-2xl font-semibold mt-8 mb-4">Notre équipe</h2>
         <p className="text-lg mb-6">
           Notre équipe se compose de professionnels passionnés qui sont déterminés à offrir le meilleur de la technologie et du service client. 
-          Des ingénieurs logiciels expérimentés aux spécialistes du support client, nous travaillons ensemble pour créer une plateforme d’achat en ligne en laquelle vous pouvez avoir confiance.
+          Des ingénieurs logiciels expérimentés aux spécialistes du support client, nous travaillons ensemble pour créer une plateforme d'achat en ligne en laquelle vous pouvez avoir confiance.
         </p>
 
         <h2 className="text-2xl font-semibold mt-8 mb-4">Pourquoi nous choisir ?</h2>
         <ul className="list-disc pl-6 text-lg mb-6">
-          <li><strong>Large sélection</strong> : Une variété d’électroniques dernière génération.</li>
+          <li><strong>Large sélection</strong> : Une variété d'électroniques dernière génération.</li>
           <li><strong>Service rapide et fiable</strong> : Avec DevOps, des livraisons rapides et un service client réactif.</li>
           <li><strong>Achat sécurisé</strong> : Technologie de cryptage de pointe pour sécuriser vos transactions.</li>
           <li><strong>Innovation continue</strong> : Nous améliorons constamment la plateforme pour mieux vous servir.</li>

@@ -4,33 +4,39 @@ import { createContext, useContext, useState, useEffect, useCallback, useMemo } 
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState(() => {
-    if (typeof window !== "undefined") {
-      const storedCart = localStorage.getItem("cart");
-      return storedCart ? JSON.parse(storedCart) : [];
-    }
-    return [];
-  });
+  const [cart, setCart] = useState([]);
+  const [isClient, setIsClient] = useState(false);
 
-  // Save cart to localStorage
+  // Initialize cart from localStorage only on client-side
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    setIsClient(true);
+    const storedCart = localStorage.getItem("cart");
+    if (storedCart) {
+      setCart(JSON.parse(storedCart));
+    }
+  }, []);
+
+  // Save cart to localStorage only on client-side
+  useEffect(() => {
+    if (isClient) {
       localStorage.setItem("cart", JSON.stringify(cart));
     }
-  }, [cart]);
+  }, [cart, isClient]);
 
   // Computed values
   const totalItems = useMemo(
     () => cart.reduce((total, item) => total + item.quantity, 0),
     [cart]
   );
-const [clientTotalItems, setClientTotalItems] = useState(0);
 
-useEffect(() => {
-  setClientTotalItems(totalItems);
-}, [totalItems]);
+  const [clientTotalItems, setClientTotalItems] = useState(0);
+
+  useEffect(() => {
+    setClientTotalItems(totalItems);
+  }, [totalItems]);
+
   const totalPrice = useMemo(
-    () => cart.reduce((total, item) => total + item.Price * item.quantity, 0),
+    () => cart.reduce((total, item) => total + (item.price * item.quantity), 0),
     [cart]
   );
 
@@ -45,23 +51,22 @@ useEffect(() => {
         : [...prevCart, { ...product, quantity: 1 }];
     });
   }, []);
+
   const addItemQuantity = useCallback((product, quantity) => {
-  setCart((prevCart) => {
-    const existingItem = prevCart.find((item) => item.ID === product.ID);
-    const maxAllowed = product.Stock - (existingItem?.quantity || 0);
+    setCart((prevCart) => {
+      const existingItem = prevCart.find((item) => item.ID === product.ID);
+      const maxAllowed = product.Stock - (existingItem?.quantity || 0);
+      const addQuantity = Math.min(quantity, maxAllowed);
 
-    // Ensure we don't add more than available stock
-    const addQuantity = Math.min(quantity, maxAllowed);
-
-    return existingItem
-      ? prevCart.map((item) => 
-          item.ID === product.ID 
-            ? { ...item, quantity: item.quantity + addQuantity } 
-            : item
-        )
-      : [...prevCart, { ...product, quantity: addQuantity }];
-  });
-}, []);
+      return existingItem
+        ? prevCart.map((item) => 
+            item.ID === product.ID 
+              ? { ...item, quantity: item.quantity + addQuantity } 
+              : item
+          )
+        : [...prevCart, { ...product, quantity: addQuantity }];
+    });
+  }, []);
 
   const updateQuantity = useCallback((ID, quantity) => {
     setCart((prevCart) =>

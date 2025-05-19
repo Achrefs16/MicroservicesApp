@@ -1,5 +1,6 @@
+"use client";
 import React from 'react'
-import ProductCard from "@/components/products/ProductCard";
+import ProductCard from "./ProductCard";
 
 const Products = () => {
       const products = [

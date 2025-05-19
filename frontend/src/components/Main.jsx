@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import ProductCard from "@/components/products/ProductCard";
+import ProductCard from "./products/ProductCard";
 import axios from "axios";
+
+const PRODUCT_API_URL = process.env.NEXT_PUBLIC_PRODUCT_API_URL;
+
 const Main = () => {
 
   // State to hold the products data, loading status, and potential errors
@@ -8,17 +11,23 @@ const Main = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 const [searchTerm, setSearchTerm] = useState('');
-
-const productUrl = process.env.NEXT_PUBLIC_PRODUCT_URL;
   // useEffect to fetch products when the component mounts
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // Adjust the URL to match your backend endpoint
-        const response = await axios.get(`${productUrl}/products`);
-        setProducts(response.data);
-        console.log(response.data);
-        
+        const response = await axios.get(`${PRODUCT_API_URL}/products`);
+        // Transform the data to match our component's expected format
+        const transformedProducts = response.data.map(product => ({
+          ID: product.ID,
+          name: product.Name,
+          description: product.Description,
+          category: product.Category,
+          price: product.Price,
+          stock: product.Stock,
+          image: product.ImageURL || `/images/products/${product.ID}.jpg`
+        }));
+        setProducts(transformedProducts);
+        console.log('Transformed products:', transformedProducts);
       } catch (err) {
         console.error("Error fetching products:", err);
         setError("Failed to load products.");
@@ -32,8 +41,8 @@ const productUrl = process.env.NEXT_PUBLIC_PRODUCT_URL;
 const filteredProducts = products.filter(product => {
   const searchLower = searchTerm.toLowerCase();
   return (
-    product.Name.toLowerCase().includes(searchLower) ||
-    product.Description.toLowerCase().includes(searchLower)
+    (product.name?.toLowerCase() || '').includes(searchLower) ||
+    (product.description?.toLowerCase() || '').includes(searchLower)
   );
 });
 const categories = [
@@ -93,7 +102,15 @@ const categories = [
   className="px-3 w-96 py-2 rounded-md text-sm bg-gray-100 border-2 border-gray-600 focus:outline-none focus:ring focus:ring-gray-900"
 />
   </div>
-  {filteredProducts.length === 0 ? (
+  {loading ? (
+    <div className="text-center py-8">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+    </div>
+  ) : error ? (
+    <div className="text-center py-8">
+      <p className="text-red-500 text-lg">{error}</p>
+    </div>
+  ) : filteredProducts.length === 0 ? (
     <div className="text-center py-8">
       <p className="text-gray-500 text-lg">No products found matching your search.</p>
     </div>

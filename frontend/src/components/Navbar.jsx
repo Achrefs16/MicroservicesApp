@@ -2,19 +2,21 @@
 import { toast } from "react-hot-toast";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { FiShoppingCart } from "react-icons/fi";
+import { FiShoppingCart, FiHeart } from "react-icons/fi";
 import { FaUser } from "react-icons/fa";
 import LoginModal from "./LoginModal";
 import SignUpModal from "./SignupModal";
 import Cart from "./Cart";
 import axios from "axios";
 import { useCart } from "../app/context/CartContext"; // Import useCart
+import { useFavorites } from "../app/context/FavoritesContext";
 import ProfileModal from "./ProfileModal";
 
-const authUrl = process.env.NEXT_PUBLIC_AUTH_URL;
+const AUTH_API_URL = process.env.NEXT_PUBLIC_AUTH_API_URL;
 
 const Navbar = () => {
   const { clientTotalItems } = useCart(); // Get total items from cart
+  const { favorites } = useFavorites();
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -53,7 +55,7 @@ const Navbar = () => {
 
   const handleSignIn = async (userCredentials) => {
     try {
-      const response = await axios.post(`${authUrl}/signin`, userCredentials);
+      const response = await axios.post(`${AUTH_API_URL}/signin`, userCredentials);
       if (response.data.success) {
         localStorage.setItem("usertoken", response.data.token);
         setIsSignedIn(true);
@@ -70,7 +72,7 @@ const Navbar = () => {
 
   const handleSignUp = async (userCredentials) => {
     try {
-      const response = await axios.post(`${authUrl}/signup`, userCredentials);
+      const response = await axios.post(`${AUTH_API_URL}/signup`, userCredentials);
       if (response.data.success) {
         toast.success("Inscription réussie !");
         setIsSignUpOpen(false);
@@ -87,7 +89,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white shadow-lg">
+    <nav className="bg-white shadow-lg" data-navbar>
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
        
@@ -97,12 +99,20 @@ const Navbar = () => {
             <div className="hidden md:flex items-center space-x-8">
              <Link href="/" className="text-gray-700 hover:text-blue-600">Home</Link>
              <Link href="/categories" className="text-gray-700 hover:text-blue-600">Categories</Link>
-             <Link href="/NewArrivals" className="text-gray-700 hover:text-blue-600">New Arrivals</Link>
+         
              <Link href="/contact" className="text-gray-700 hover:text-blue-600">Contact</Link>
             
           </div>
           <div className="hidden md:flex items-center space-x-4">
-           
+            {/* Favorites Button with Badge */}
+            <Link href="/favorites" className="relative focus:outline-none">
+              <FiHeart size={24} className="text-gray-700 hover:text-red-500 transition-colors" />
+              {favorites.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  {favorites.length}
+                </span>
+              )}
+            </Link>
 
             {/* Cart Button with Badge */}
             <button className="relative focus:outline-none" onClick={handleCartToggle}>
@@ -117,6 +127,7 @@ const Navbar = () => {
             {/* Profile Button */}
             <button
               onClick={toggleProfile}
+              data-profile-button
               className="bg-gray-300 rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
             >
               <span className="sr-only">Open profile</span>

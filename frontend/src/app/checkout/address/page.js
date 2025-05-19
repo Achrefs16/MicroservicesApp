@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAddress } from "../../context/AddressContext";
-import Navbar from "@/components/Navbar";
+import Navbar from "../../../components/Navbar";
 
 const CheckoutAddress = () => {
   const router = useRouter();

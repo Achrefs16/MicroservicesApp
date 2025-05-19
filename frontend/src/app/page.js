@@ -1,8 +1,8 @@
 "use client"; // Assurez-vous que c'est un Client Component
 
-import Navbar from "@/components/Navbar";
-import Products from "@/components/products/Products";
-import Main from "@/components/Main";
+import Navbar from "../../src/components/Navbar";
+
+import Main from "../../src/components/Main";
 import { Toaster } from "react-hot-toast";
 
 
